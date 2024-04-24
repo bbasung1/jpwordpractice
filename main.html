@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <div id="word"></div>
+    <button id="next">next</button>
+    <script>
+
+        document.addEventListener("DOMContentLoaded",function(){
+            let testarray = [];
+            let wordcount=0;
+            fetch("http://localhost:9500/shuffle",{method: "GET"}).then((rowdata)=>{return rowdata.json()}).then((shuffle)=>{
+                console.log(shuffle)
+                testarray=shuffle
+                let template=shuffle[0].rowdata[0];
+                document.getElementById("word").style.display="block";
+                document.getElementById("word").innerHTML=template;
+            })
+            document.getElementById("next").addEventListener("click",function(event){
+                wordcount++;
+                let template=testarray[wordcount].rowdata[0];
+                document.getElementById("word").style.display="block";
+                document.getElementById("word").innerHTML=template;
+            });
+        });
+    </script>
+</body>
+</html>
