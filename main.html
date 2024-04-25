@@ -22,17 +22,7 @@
             loadwords();
             document.getElementById("next").addEventListener("click",function(event){
                 wordcount++;
-                let template=``;
-                if(!reviewmode){
-                template=testarray[wordcount%testarray.length].rowdata[0];
-                }else{
-                    template=falsenote[wordcount%falsenote.length][0];
-                    document.getElementById("mean").style.display="block";
-                    document.getElementById("mean").innerHTML=falsenote[wordcount%falsenote.length][1];
-                }
-                console.log(template)
-                document.getElementById("word").style.display="block";
-                document.getElementById("word").innerHTML=template;
+                displayword();
             });
             document.getElementById("wrong_answer").addEventListener("click",function(event){
                 falsenote.push(testarray[wordcount].rowdata);
@@ -47,14 +37,13 @@
                  reviewmode=!reviewmode;
                  if(reviewmode){
                     testarray=falsenote
-                    document.getElementById("mean").innerHTML=testarray[wordcount][1]
+                    displayword();
                  }
                  else{
                     loadwords();
                  }
                  btnchg=document.getElementById("review");
                  btnchg.innerText="wordnote"
-                 document.getElementById("wrong_answer_show").innerHTML=``;
             });
 
             function loadwords(){
@@ -64,8 +53,17 @@
                 let template=shuffle[0].rowdata[0];
                 document.getElementById("word").style.display="block";
                 document.getElementById("word").innerHTML=template;
+                displayword()
+                document.getElementById("mean").innerHTML=''
+                document.getElementById("wrong_answer_show").innerHTML=''
             })
             }
+            function displayword(){
+            curidx=wordcount%(reviewmode?falsenote.length:testarray.length);
+            curdata=reviewmode?falsenote[curidx]:testarray[curidx].rowdata;
+            document.getElementById("word").innerHTML=curdata[0]
+            document.getElementById("mean").innerHTML=reviewmode?curdata[1]:'';
+        }
         });
     </script>
 </body>
