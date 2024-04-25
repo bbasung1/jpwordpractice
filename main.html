@@ -47,7 +47,7 @@
             });
 
             function loadwords(){
-                fetch("http://localhost:9500/shuffle",{method: "GET"}).then((rowdata)=>{return rowdata.json()}).then((shuffle)=>{
+                fetch("http://bbasung.iptime.org:9500/shuffle",{method: "GET"}).then((rowdata)=>{return rowdata.json()}).then((shuffle)=>{
                 console.log(shuffle)
                 testarray=shuffle
                 let template=shuffle[0].rowdata[0];
