@@ -24,8 +24,6 @@ async function Run() {
   console.log(doc.title);
   const sheet = doc.sheetsByIndex[0];
   const rows = await sheet.getRows();
-  console.log(rows.length)
-  console.log(rows[0]._rawData)
   let m = rows.length, t, i;
 
   while (m) {
