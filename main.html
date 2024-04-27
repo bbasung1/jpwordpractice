@@ -7,10 +7,12 @@
 </head>
 <body>
     <button id="review">오답노트</button>
+    <div id="count"></div>
     <div id="word"></div>
     <div id="mean"></div>
     <button id="next">next</button>
     <button id="wrong_answer">X</button>
+    <button id="show_mean">정답보기</button>
     <div id="wrong_answer_show"></div>
     <script>
 
@@ -19,50 +21,82 @@
             let wordcount=0;
             let falsenote=[];
             let reviewmode=false;
+            let show_mean_mode=false;
+            const reviewbtn=document.getElementById("review");
+            const countdiv=document.getElementById("count");
+            const worddiv=document.getElementById("word");
+            const meandiv=document.getElementById("mean");
+            const nextbtn=document.getElementById("next");
+            const wrong_answer_btn=document.getElementById("wrong_answer");
+            const show_mean_btn=document.getElementById("show_mean");
+            const wrong_answer_show_div=document.getElementById("wrong_answer_show");
             loadwords();
-            document.getElementById("next").addEventListener("click",function(event){
+            nextbtn.addEventListener("click",function(event){
                 wordcount++;
+                if(!reviewmode&&wordcount==testarray.length){
+                    if(window.confirm("학습으로 바로 들어가시겠습니까??")){
+                    setreviewmode()
+                    }
+                    else{
+                        wordcount=0;
+                        displayword();
+                    }
+                }else{
                 displayword();
+                }
             });
-            document.getElementById("wrong_answer").addEventListener("click",function(event){
+            wrong_answer_btn.addEventListener("click",function(event){
                 falsenote.push(testarray[wordcount].rowdata);
                 console.log(falsenote);
                 let template=falsenote.map(words=>`<li>${words[0]}<br>${words[1]}</li>`).join('')
                 console.log(template)
-                document.getElementById("wrong_answer_show").style.display="block";
-                document.getElementById("wrong_answer_show").innerHTML=template;
+                wrong_answer_show_div.style.display="block";
+                wrong_answer_show_div.innerHTML=template;
             });
-            document.getElementById("review").addEventListener("click",function(event){
-                 wordcount=0;
-                 reviewmode=!reviewmode;
-                 if(reviewmode){
-                    testarray=falsenote
-                    displayword();
-                 }
-                 else{
-                    loadwords();
-                 }
-                 btnchg=document.getElementById("review");
-                 btnchg.innerText="wordnote"
+            reviewbtn.addEventListener("click",function(event){
+                setreviewmode()
             });
-
+            show_mean_btn.addEventListener("click",function(event){
+                if(!reviewmode){
+                    show_mean_mode=!show_mean_mode;
+                meandiv.innerHTML=show_mean_mode?testarray[wordcount%testarray.length].rowdata[1]:'';
+                show_mean_btn.innerText=show_mean_mode?"뜻 닫기":"정답 보기";
+                }
+            });
             function loadwords(){
                 fetch("http://bbasung.iptime.org:9500/shuffle",{method: "GET"}).then((rowdata)=>{return rowdata.json()}).then((shuffle)=>{
                 console.log(shuffle)
                 testarray=shuffle
-                let template=shuffle[0].rowdata[0];
-                document.getElementById("word").style.display="block";
-                document.getElementById("word").innerHTML=template;
+                let template=testarray[0].rowdata[0];
+                worddiv.style.display="block";
+                worddiv.innerHTML=template;
                 displayword()
-                document.getElementById("mean").innerHTML=''
-                document.getElementById("wrong_answer_show").innerHTML=''
+                meandiv.innerHTML=''
+                wrong_answer_show_div.innerHTML='';
+                falsenote=[];
             })
             }
             function displayword(){
             curidx=wordcount%(reviewmode?falsenote.length:testarray.length);
             curdata=reviewmode?falsenote[curidx]:testarray[curidx].rowdata;
-            document.getElementById("word").innerHTML=curdata[0]
-            document.getElementById("mean").innerHTML=reviewmode?curdata[1]:'';
+            worddiv.innerHTML=curdata[0]
+            meandiv.innerHTML=reviewmode?curdata[1]:'';
+            countdiv.innerHTML=curidx+"/"+(reviewmode?falsenote.length:testarray.length);
+            show_mean_mode=false;
+            show_mean_btn.innerText="정답 보기";
+        }
+        function setreviewmode(){
+            wordcount=0;
+                 reviewmode=!reviewmode;
+                 if(reviewmode){
+                    testarray=falsenote
+                    displayword();
+
+                 }
+                 else{
+                    loadwords();
+                 }
+                 reviewbtn.innerText=reviewmode?"wordnote":"오답노트";
         }
         });
     </script>
