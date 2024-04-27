@@ -18,7 +18,7 @@ const serviceAccountAuth = new JWT({
 
 
 
-async function Run() {
+async function Run(cnt) {
   const doc = new GoogleSpreadsheet('100WYx3325c2mYWE24a_2qzFk6HJsD7P36kIGp1YEcaI', serviceAccountAuth);
   await doc.loadInfo();
   console.log(doc.title);
@@ -34,7 +34,7 @@ async function Run() {
     rows[m] = rows[i];
     rows[i] = t;
   }
-  return rows.slice(0, 100).map(row => ({
+  return rows.slice(0, cnt).map(row => ({
     rownum: row._rowNumber,
     rowdata: row._rawData
   }));
@@ -42,8 +42,8 @@ async function Run() {
 
 
 app.get("/shuffle", (req, res) => {
-  console.log("test")
-  Run().then((test) => {
+  console.log(req.query.cnt)
+  Run(req.query.cnt).then((test) => {
     res.json(test);
   })
 })

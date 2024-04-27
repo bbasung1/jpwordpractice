@@ -6,6 +6,10 @@
     <title>Document</title>
 </head>
 <body>
+    <div id="totnumberzone">
+        <input type="number" name='totnumber'placeholder="남은 칸 개수 " autocomplete="off" id="totnumberline">
+        <button id="totnumberbtn">적용</button>
+    </div>
     <button id="review">오답노트</button>
     <div id="count"></div>
     <div id="word"></div>
@@ -19,6 +23,7 @@
         document.addEventListener("DOMContentLoaded",function(){
             let testarray = [];
             let wordcount=0;
+            let loadword=100;
             let falsenote=[];
             let reviewmode=false;
             let show_mean_mode=false;
@@ -30,7 +35,10 @@
             const wrong_answer_btn=document.getElementById("wrong_answer");
             const show_mean_btn=document.getElementById("show_mean");
             const wrong_answer_show_div=document.getElementById("wrong_answer_show");
-            loadwords();
+            const totnumberbtn=document.getElementById("totnumberbtn");
+            const totnumberline=document.getElementById("totnumberline");
+            const totnumberzome=document.getElementById("totnumberzone");
+            loadwords(loadword);
             nextbtn.addEventListener("click",function(event){
                 wordcount++;
                 if(!reviewmode&&wordcount==testarray.length){
@@ -47,9 +55,7 @@
             });
             wrong_answer_btn.addEventListener("click",function(event){
                 falsenote.push(testarray[wordcount].rowdata);
-                console.log(falsenote);
                 let template=falsenote.map(words=>`<li>${words[0]}<br>${words[1]}</li>`).join('')
-                console.log(template)
                 wrong_answer_show_div.style.display="block";
                 wrong_answer_show_div.innerHTML=template;
             });
@@ -57,16 +63,21 @@
                 setreviewmode()
             });
             show_mean_btn.addEventListener("click",function(event){
-                if(!reviewmode){
+                // if(!reviewmode){
                     show_mean_mode=!show_mean_mode;
-                meandiv.innerHTML=show_mean_mode?testarray[wordcount%testarray.length].rowdata[1]:'';
+                meandiv.innerHTML=show_mean_mode?(reviewmode?falsenote[wordcount%falsenote.length][1]:testarray[wordcount%testarray.length].rowdata[1]):'';
                 show_mean_btn.innerText=show_mean_mode?"뜻 닫기":"정답 보기";
-                }
+                // }
             });
-            function loadwords(){
-                fetch("http://bbasung.iptime.org:9500/shuffle",{method: "GET"}).then((rowdata)=>{return rowdata.json()}).then((shuffle)=>{
-                console.log(shuffle)
+            totnumberbtn.addEventListener("click",function(event){
+                loadword=totnumberline.value;
+                setreviewmode()
+            });
+            function loadwords(cnt){
+                feturl="http://bbasung.iptime.org:9500/shuffle?cnt="+cnt;
+                fetch(feturl,{method: "GET"}).then((rowdata)=>{return rowdata.json()}).then((shuffle)=>{
                 testarray=shuffle
+                // console.log(shuffle)
                 let template=testarray[0].rowdata[0];
                 worddiv.style.display="block";
                 worddiv.innerHTML=template;
@@ -80,9 +91,12 @@
             curidx=wordcount%(reviewmode?falsenote.length:testarray.length);
             curdata=reviewmode?falsenote[curidx]:testarray[curidx].rowdata;
             worddiv.innerHTML=curdata[0]
-            meandiv.innerHTML=reviewmode?curdata[1]:'';
+            if(!reviewmode){
+                show_mean_mode=false
+            }
+            meandiv.innerHTML=show_mean_mode?curdata[1]:'';
             countdiv.innerHTML=curidx+"/"+(reviewmode?falsenote.length:testarray.length);
-            show_mean_mode=false;
+            // show_mean_mode=false;
             show_mean_btn.innerText="정답 보기";
         }
         function setreviewmode(){
@@ -91,10 +105,10 @@
                  if(reviewmode){
                     testarray=falsenote
                     displayword();
-
+                    wrong_answer_show_div.innerHTML='';
                  }
                  else{
-                    loadwords();
+                    loadwords(loadword);
                  }
                  reviewbtn.innerText=reviewmode?"wordnote":"오답노트";
         }
