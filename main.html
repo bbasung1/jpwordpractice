@@ -54,13 +54,33 @@
                 }
             });
             wrong_answer_btn.addEventListener("click",function(event){
+                if(!reviewmode){
                 falsenote.push(testarray[wordcount].rowdata);
                 let template=falsenote.map(words=>`<li>${words[0]}<br>${words[1]}</li>`).join('')
                 wrong_answer_show_div.style.display="block";
                 wrong_answer_show_div.innerHTML=template;
+                }else if(window.confirm("정말 삭제하시겠습니까?")){
+                    wordcount=wordcount%falsenote.length
+                    console.log(wordcount)
+                    falsenote.splice(wordcount,1)
+                    console.log(falsenote.length)
+                    if(falsenote.length==0){
+                        window.alert("학습완료")
+                        setreviewmode()
+                    }else{
+                        if(wordcount==falsenote.length-1){
+                            wordcount=falsenote.length-2
+                        }
+                        displayword()
+                    }
+                }
             });
             reviewbtn.addEventListener("click",function(event){
+                if(falsenote.length==0){
+                    window.alert("학습 단어가 없습니다.")
+                }else{
                 setreviewmode()
+                }
             });
             show_mean_btn.addEventListener("click",function(event){
                 // if(!reviewmode){
@@ -95,7 +115,7 @@
                 show_mean_mode=false
             }
             meandiv.innerHTML=show_mean_mode?curdata[1]:'';
-            countdiv.innerHTML=curidx+"/"+(reviewmode?falsenote.length:testarray.length);
+            countdiv.innerHTML=(curidx+1)+"/"+(reviewmode?falsenote.length:testarray.length);
             // show_mean_mode=false;
             show_mean_btn.innerText="정답 보기";
         }
